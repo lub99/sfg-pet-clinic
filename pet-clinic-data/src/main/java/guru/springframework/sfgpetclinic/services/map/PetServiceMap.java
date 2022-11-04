@@ -6,4 +6,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PetServiceMap extends AbstractServiceMap<Pet, Long> implements PetService {
+    @Override
+    Long getNextId() {
+        return (long) (map.size() + 1);
+    }
 }

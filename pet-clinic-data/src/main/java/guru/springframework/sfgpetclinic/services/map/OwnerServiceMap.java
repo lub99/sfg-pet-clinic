@@ -14,4 +14,9 @@ public class OwnerServiceMap extends AbstractServiceMap<Owner, Long> implements 
                 .findFirst()
                 .orElseThrow();
     }
+
+    @Override
+    Long getNextId() {
+        return (long) (map.size() + 1);
+    }
 }
