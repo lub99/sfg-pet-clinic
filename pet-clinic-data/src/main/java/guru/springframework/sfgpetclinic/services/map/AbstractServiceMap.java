@@ -22,7 +22,7 @@ public abstract class AbstractServiceMap<T extends BaseEntity<ID>, ID> implement
     @Override
     public T save(T object) {
         if (Objects.nonNull(object)){
-            var nextId = this.getNextId();
+            ID nextId = this.getNextId();
             object.setId(nextId);
             map.put(object.getId(), object);
         } else {

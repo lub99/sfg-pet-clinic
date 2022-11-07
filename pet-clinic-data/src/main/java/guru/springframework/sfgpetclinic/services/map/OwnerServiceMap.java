@@ -12,7 +12,7 @@ public class OwnerServiceMap extends AbstractServiceMap<Owner, Long> implements 
                 .stream()
                 .filter(owner -> owner.getLastName().equals(lastName))
                 .findFirst()
-                .orElseThrow();
+                .get();
     }
 
     @Override
