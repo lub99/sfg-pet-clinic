@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Set;
 
@@ -28,7 +27,7 @@ class OwnerServiceMapTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        ownerServiceMap =  new OwnerServiceMap(petService, petTypeService);
+        ownerServiceMap = new OwnerServiceMap(petService, petTypeService);
 
         ownerServiceMap.save(Owner.builder().id(ownerId).lastName(lastname).build());
     }
@@ -47,7 +46,7 @@ class OwnerServiceMapTest {
         assertEquals(ownerId, owner.getId());
     }
 
-//    @DirtiesContext
+    //    @DirtiesContext
     @Test
     void saveExistingId() {
         Long id2 = 2L;
