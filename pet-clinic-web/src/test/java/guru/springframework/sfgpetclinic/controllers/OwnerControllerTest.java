@@ -11,13 +11,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -30,7 +28,7 @@ class OwnerControllerTest {
     @InjectMocks
     OwnerController controller;
 
-    Set<Owner> owners;
+    List<Owner> owners;
     final Long id1 = 1L;
     final Long id2 = 2L;
 
@@ -38,32 +36,13 @@ class OwnerControllerTest {
 
     @BeforeEach
     void setUp() {
-        owners = new HashSet<>();
+        owners = new LinkedList<>();
         owners.add(Owner.builder().id(id1).build());
         owners.add(Owner.builder().id(id2).build());
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(controller)
                 .build();
-    }
-
-    @Test
-    void listOwners() throws Exception {
-        when(ownerService.findAll()).thenReturn(owners);
-
-        mockMvc.perform(get("/owners"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("owners/index"))
-                .andExpect(model().attribute("owners", hasSize(2)));
-    }
-
-    @Test
-    void findOwners() throws Exception {
-        mockMvc.perform(get("/owners/find"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("notimplemented"));
-
-        verifyZeroInteractions(ownerService);
     }
 
     @Test
@@ -76,5 +55,54 @@ class OwnerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("owners/ownerDetails"))
                 .andExpect(model().attribute("owner", hasProperty("id", is(id1))));
+    }
+
+
+    @Test
+    void getFindForm() throws Exception {
+        mockMvc.perform(get("/owners/find"))
+                .andExpect(model().attributeExists("owner"))
+                .andExpect(view().name("owners/findOwners"))
+                .andExpect(status().isOk());
+
+        verifyZeroInteractions(ownerService);
+    }
+
+    @Test
+    void processFindFormManyOwners() throws Exception {
+
+        when(ownerService.findAllByLastNameLike(anyString())).thenReturn(owners);
+
+        mockMvc.perform(get("/owners"))
+                .andExpect(model().attributeExists("selections"))
+                .andExpect(view().name("owners/ownersList"))
+                .andExpect(status().isOk());
+
+        verify(ownerService, never()).findAll();
+    }
+
+    @Test
+    void processFindFormOneOwner() throws Exception {
+
+        when(ownerService.findAllByLastNameLike(anyString())).thenReturn(Arrays.asList(Owner.builder().id(id1).build()));
+
+        mockMvc.perform(get("/owners"))
+                .andExpect(view().name("redirect:/owners/"+ id1))
+                .andExpect(status().is3xxRedirection());
+
+        verify(ownerService, never()).findAll();
+        verify(ownerService, times(1)).findAllByLastNameLike(anyString());
+    }
+
+    @Test
+    void processFindFormNoOwners() throws Exception {
+        when(ownerService.findAllByLastNameLike(anyString())).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/owners"))
+                .andExpect(view().name("owners/findOwners"))
+                .andExpect(status().isOk());
+
+        verify(ownerService, never()).findAll();
+        verify(ownerService, times(1)).findAllByLastNameLike(anyString());
     }
 }

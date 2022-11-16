@@ -2,7 +2,7 @@
   th:replace="~{fragments/layout :: layout (~{::body},'owners')}">
 
 <body>
-
+<!--/*@thymesVar id="owner" type="guru.springframework.sfgpetclinic.model.Owner"*/-->
   <h2>Find Owners</h2>
 
   <form th:object="${owner}" th:action="@{/owners}" method="get"
